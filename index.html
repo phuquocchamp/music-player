@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="../music_player/assets/css/style.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+      <title>Music Player</title>
+</head>
+<body>
+      <!-- Player -->
+      <div class="player">
+            <!-- Dashboard -->
+            <div class="dashboard">
+                  <!-- header -->
+                  <header>
+                        <h4>Now Playing</h4>
+                        <h2>String 57ths & 9th</h2>
+                  </header>
+              
+                  <!-- CD -->
+                  <div class="cd">
+                        <div class="cd-thumb">
+
+                        </div>
+                  </div>
+                  <!-- control -->
+                  <div class="control">
+                        <div class="btn btn-repeat">
+                              <i class="fa-solid fa-rotate-right"></i>
+                        </div>
+                        <div class="btn btn-pre">
+                              <i class="fa-solid fa-backward"></i>
+                        </div>
+                        <div class="btn btn-toggle-play">
+                              <i class="fa-solid fa-play icon-play"></i>
+                              <i class="fa-solid fa-pause icon-pause"></i>
+                        </div>
+                        <div class="btn btn-next">
+                              <i class="fa-solid fa-forward"></i>
+                        </div>
+                        <div class="btn btn-random">
+                              <i class="fa-solid fa-shuffle"></i>
+                        </div>
+                  </div>
+                  <!-- progress -->
+                  <input id="progress" class="progress" type="range" value="0" step="1" min="0" max="100">
+                  <!-- audio -->
+                  <audio id="audio" src=""></audio>
+
+            </div>
+            <!-- Playlist -->
+            <div class="playlist">
+
+            </div>
+
+      </div>
+
+      <script>           
+
+            const $ = document.querySelector.bind(document);
+            const $$ = document.querySelectorAll.bind(document);
+
+            const cd = $('.cd')
+            const audio = $('#audio');
+            const player = $('.player');
+            const heading = $('header h2');
+            const cdThumb = $('.cd-thumb');
+            // control buttons
+            const preBtn = $('.btn-pre')
+            const nextBtn = $('.btn-next')
+            const randomBtn = $('.btn-random')
+            const repeatBtn = $('.btn-repeat')
+            const playBtn = $('.btn-toggle-play');
+            // progress range
+            const progress = $('#progress');
+            const playlist = $('.playlist');
+
+
+            const app = {     
+
+                  currentIndex: 0,    
+                  isPlaying: false,   
+                  isRandom: false,
+                  isRepeat: false,
+                  
+                  
+                  songs: [
+                        {
+                              name: "Nơi này có anh",
+                              singer: "Sơn Tùng MTP",
+                              path: "../music_player/assets/music/noi_nay_co_anh.mp3",
+                              image: "../music_player/assets/img/noi_nay_co_anh.jpg"
+                        },
+                        {
+                              name: "Sao cha không già",
+                              singer: "Phan Mạnh Quỳnh",
+                              path: "../music_player/assets/music/sao_cha_khong_gia.mp3",
+                              image: "../music_player/assets/img/sao_cha_khong_gia.jpg"
+                        },
+                        {
+                              name: "Dĩ vãng nhạt nhòa",
+                              singer: "Hà Nhi",
+                              path: "../music_player/assets/music/di_vang_nhat_nhoa.mp3",
+                              image: "../music_player/assets/img/di_vang_nhat_nhoa.jpg"
+                        },
+                        {
+                              name: "Nắng ấm xa dần",
+                              singer: "Sơn Tùng MTP",
+                              path: "../music_player/assets/music/nang_am_xa_dan.mp3",
+                              image: "../music_player/assets/img/nang_am_xa_dan.jpg"
+                        },  {
+                              name: "Lạc trôi",
+                              singer: "Sơn Tùng MTP",
+                              path: "../music_player/assets/music/lac_troi.mp3",
+                              image: "../music_player/assets/img/lac_troi.jpg"
+                        },  {
+                              name: "Em của em ngày hôm qua",
+                              singer: "Hà Nhi",
+                              path: "../music_player/assets/music/em_cua_ngay_hom_qua.mp3",
+                              image: "../music_player/assets/img/em_cua_ngay_hom_qua.jpg"
+                        },  {
+                              name: "Khuôn mặt đáng thương",
+                              singer: "Sơn Tùng MTP",
+                              path: "../music_player/assets/music/khuon_mat_dang_thuong.mp3",
+                              image: "../music_player/assets/img/khuon_mat_dang_thuong.jpg"
+                        },  {
+                              name: "Tình em là đại dương",
+                              singer: "Duy Mạnh",
+                              path: "../music_player/assets/music/tinh_em_la_dai_duong.mp3",
+                              image: "../music_player/assets/img/tinh_em_la_dai_duong.jfif"
+                        },  {
+                              name: "Anh sai rồi",
+                              singer: "Sơn Tùng MTP",
+                              path: "../music_player/assets/music/anh_sai_roi.mp3",
+                              image: "../music_player/assets/img/anh_sai_roi.jpg"
+                        },
+
+                  ],
+                  render: function () {
+                        const htmls = this.songs.map((song, index) => {
+                              return `    
+                                    <div class="song ${index === this.currentIndex ? "active" : ""}" data-index="${index}">
+                                          <div class="thumb"
+                                                style="background-image: url('${song.image}')">
+                                          </div>    
+                                          <div class = "body">
+                                                <h3 class="title">${song.name}</h3>
+                                                <p class="aothor">${song.singer}</p>
+                                          </div>
+                                          <div class="option">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                          </div>                                    
+                                    </div>
+                              `
+                        })
+                        $('.playlist').innerHTML = htmls.join("");
+                                                 
+                  },
+                  defineProperties: function () {
+                        Object.defineProperty(this, 'currentSong', {
+                              get: function () {
+                                    return this.songs[this.currentIndex];
+                              },
+                        })
+                  },
+                  handleEvents: function() {
+                        const cdWidth = cd.offsetWidth
+                        const _this = this;
+
+                        // Cd rotate animation
+                        const cdThumbAnimate = cdThumb.animate([
+                              {transform: 'rotate(360deg)'}
+                        ], {
+                              duration:10000, // 10 seconds
+                              iterations: Infinity
+                        })
+
+                        cdThumbAnimate.pause();
+
+                        // Zoom in/out CD 
+                       document.onscroll = function(){
+                              const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                              const newCdWidth = cdWidth - scrollTop;
+                              
+                              cd.style.width = (newCdWidth > 0) ? (newCdWidth + 'px') : 0;
+                              cd.style.opacity = newCdWidth / cdWidth;
+                        }; 
+                        // Play progressing
+                        playBtn.onclick = function () {
+                              if(_this.isPlaying){
+                                    audio.pause();
+                              }
+                              else{
+                                    audio.play();
+                              }
+
+                        };
+                        // audio play
+                        audio.onplay = function(){
+                              _this.isPlaying = true;
+                              player.classList.add('playing')
+                              cdThumbAnimate.play();
+                              
+                        };
+                        // audio pause
+                        audio.onpause = function(){
+                              _this.isPlaying = false;
+                              player.classList.remove('playing')
+                              cdThumbAnimate.pause();
+                        };
+
+                        // when audio progress changes
+                        audio.ontimeupdate = function(){
+                              if(audio.duration){
+                                    const progressPercent = Math.floor((audio.currentTime / audio.duration) * 100);
+                                    progress.value = progressPercent;
+                              }
+                        };
+
+                        // audio seeking
+                        progress.onchange = function(e) {
+                              const seekTime = (audio.duration / 100) * e.target.value;
+                              audio.currentTime = seekTime;
+                        };
+
+                        // Next Song
+                        nextBtn.onclick = function(){
+                              if(_this.isRandom){
+                                    _this.playRandomSong();
+                              }
+                              else{
+                                    _this.nextSong();
+                              }
+                              audio.play();
+                              _this.render();
+                              _this.scrollToActiveSong();
+                        }
+
+                        // previous song
+                        preBtn.onclick = function(){
+                              if(_this.isRandom){
+                                    _this.playRandomSong();
+                              }
+                              else{
+                                    _this.preSong();
+                              }
+                              audio.play();
+                              _this.render();
+                              _this.scrollToActiveSong();
+                        };
+
+                        // Random song
+                        randomBtn.onclick = function(e){
+                              _this.isRandom = !_this.isRandom;
+                              randomBtn.classList.toggle("active",_this.isRandom);
+                        }
+
+                        // repeat song
+                        repeatBtn.onclick = function(e) {
+                              _this.isRepeat = !_this.isRepeat;
+                              repeatBtn.classList.toggle("active",this.isRepeat);
+                        }
+                        // audio ended && repeat
+                        audio.onended = function() {
+                              if(_this.isRepeat){
+                                    audio.play();
+                              }
+                              else{
+                                    nextBtn.click();
+                              }
+                        }
+                        // Listen clicks behavior into playlist elements
+                        playlist.onclick = function(e) {
+                              const songNode = e.target.closest(".song:not(.active)");
+                              if(songNode || e.target.closest(".option")){
+                                    // When clicking on song
+                                    if(songNode) {
+                                          _this.currentIndex = Number(songNode.dataset.index);
+                                          _this.loadCurrentSong();
+                                          _this.render();
+                                          audio.play(); 
+                                    }
+                                    // when clicking on song options
+                              }
+                        }
+
+                  },
+                  scrollToActiveSong: function() {
+                        setTimeout(() => {
+                              $(".song.active").scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "nearest"
+                              });
+                        },300);
+                  },
+                  loadCurrentSong: function () {
+                                               
+                        heading.textContent = this.currentSong.name;
+                        cdThumb.style.backgroundImage = `url(${this.currentSong.image})`;
+                        audio.src = this.currentSong.path;
+                  },
+                  nextSong: function() {
+                        this.currentIndex++;
+                        if(this.currentIndex >= this.songs.length){
+                              this.currentSong = 0;
+                        }
+                        this.loadCurrentSong();
+                  },
+                  preSong: function() {
+                        this.currentIndex--;
+                        if(this.currentIndex < 0){
+                              this.currentIndex = this.songs.length-1;
+                        }
+                        this.loadCurrentSong();
+                  },
+                  playRandomSong: function() {
+                        let newIndex;
+                        do {
+                              newIndex = Math.floor(Math.random() * this.songs.length);
+                        } while(newIndex === this.currentIndex);
+
+                        this.currentIndex = newIndex;
+                        this.loadCurrentSong();
+                  },
+                 
+                  start: function () {
+                        // Define Object Properties
+                        this.defineProperties();
+                        this.handleEvents();    
+                        this.loadCurrentSong();                    
+                        this.render();
+                  }
+            }
+            
+            app.start();
+      </script>
+</body>
+</html>
+
+
